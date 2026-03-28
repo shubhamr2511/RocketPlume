@@ -1,0 +1,3 @@
+myFvDOM.C
+
+LIB = $(FOAM_USER_LIBBIN)/libmyRadiation

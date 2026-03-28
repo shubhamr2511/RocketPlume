@@ -1,0 +1,70 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Version: v2112
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     myRadiationSolver;
+
+startFrom       startTime;
+startTime       0;
+
+stopAt          endTime;
+endTime         1;          // 1 pseudo-time step — RTE is steady-state
+
+deltaT          1;
+
+writeControl    timeStep;
+writeInterval   1;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+writePrecision  8;
+writeCompression off;
+
+timeFormat      general;
+timePrecision   6;
+
+runTimeModifiable true;
+
+// Load custom non-gray radiation library
+libs
+(
+    "libmyRadiation.so"
+);
+
+// Function objects for post-processing
+functions
+{
+    // Integrate intensity on sensor patch after each solve
+    sensorIntegral
+    {
+        type            surfaceFieldValue;
+        libs            (fieldFunctionObjects);
+        writeControl    timeStep;
+        writeInterval   1;
+
+        regionType      patch;
+        name            outlet;      // replace with actual sensor patch name
+
+        operation       areaIntegrate;
+
+        fields
+        (
+            ILambda_band0_ray0
+            ILambda_band1_ray0
+            ILambda_band2_ray0
+        );
+    }
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -1,0 +1,57 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Version: v2112
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      kappaBand0;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Band-averaged absorption coefficient, Band 0: MWIR 3-5 µm (2000-3333 cm^-1)
+// Units: 1/m
+// Written by scripts/map_plume_data.py using HITEMP lookup table
+
+dimensions      [0 -1 0 0 0 0 0];   // m^-1
+
+internalField   uniform 1e-10;       // floor value; overwritten by mapping
+
+boundaryField
+{
+    inlet
+    {
+        type            zeroGradient;
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    outerWall
+    {
+        // Near-zero kappa in atmosphere for this band
+        type            fixedValue;
+        value           uniform 1e-10;
+    }
+
+    wedgeFront
+    {
+        type            wedge;
+    }
+
+    wedgeBack
+    {
+        type            wedge;
+    }
+
+    axis
+    {
+        type            empty;
+    }
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

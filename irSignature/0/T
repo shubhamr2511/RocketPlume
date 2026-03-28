@@ -1,0 +1,56 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Version: v2112
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Temperature field [K]
+// Overwritten by scripts/map_plume_data.py using source CFD data
+
+dimensions      [0 0 0 1 0 0 0];   // Kelvin
+
+internalField   uniform 300;        // placeholder; replaced by mapping
+
+boundaryField
+{
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 900;    // approximate nozzle exit temperature [K]
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    outerWall
+    {
+        type            fixedValue;
+        value           uniform 288;    // ambient atmospheric temperature [K]
+    }
+
+    wedgeFront
+    {
+        type            wedge;
+    }
+
+    wedgeBack
+    {
+        type            wedge;
+    }
+
+    axis
+    {
+        type            empty;
+    }
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

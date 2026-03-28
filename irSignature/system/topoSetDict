@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Version: v2112
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Extract the radiatively active plume core region
+// Threshold: cells where H2O or CO2 mole fractions exceed 1% of peak
+
+actions
+(
+    // Step 1: Select all cells within the active plume cylinder
+    {
+        name    plumeCore;
+        type    cellSet;
+        action  new;
+        source  cylinderToCell;
+        sourceInfo
+        {
+            p1      (0.0  0 0);      // start point on axis
+            p2      (0.35 0 0);      // end point (active plume axial extent)
+            radius  0.012;           // active plume radius [m]
+        }
+    }
+
+    // Step 2: Remove cells where both XH2O and XCO2 are negligible
+    // (implemented in post by thresholding — topoSet selects by geometry here)
+    // For field-based selection after mapFields, use fieldToCell:
+    // {
+    //     name    plumeCore;
+    //     type    cellSet;
+    //     action  subset;
+    //     source  fieldToCell;
+    //     sourceInfo
+    //     {
+    //         fieldName   XH2O;
+    //         min         1e-3;
+    //         max         1e6;
+    //     }
+    // }
+);
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

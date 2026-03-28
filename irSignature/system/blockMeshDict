@@ -1,0 +1,135 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Version: v2112
+    \\  /    A nd           |
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Axisymmetric wedge mesh for aircraft exhaust plume
+// Geometry: cylinder along x-axis
+//   Length:  0.4 m  (nozzle exit to plume end)
+//   Radius:  0.015 m
+//   Wedge half-angle: 2.5 degrees (5 deg total)
+
+scale   1;
+
+// Wedge half-angle in degrees
+halfAngle  2.5;
+// Convert to radians
+radHalfAngle  #calc "degToRad($halfAngle)";
+
+// Plume dimensions
+L       0.4;     // axial length [m]
+R       0.015;   // plume radius [m]
+
+// Vertex positions (wedge: front/back faces at +/- halfAngle from y=0 plane)
+// Vertices ordered: (x, y, z)
+// y = R*cos(halfAngle), z = +/-R*sin(halfAngle)
+yPos  #calc "$R * Foam::cos($radHalfAngle)";
+zPos  #calc "$R * Foam::sin($radHalfAngle)";
+
+vertices
+(
+    // Inlet face (x=0)
+    (0   0      0     )   // 0 - axis
+    (0   $yPos  -$zPos)   // 1 - outer, front
+    (0   $yPos   $zPos)   // 2 - outer, back
+
+    // Outlet face (x=L)
+    ($L  0      0     )   // 3 - axis
+    ($L  $yPos  -$zPos)   // 4 - outer, front
+    ($L  $yPos   $zPos)   // 5 - outer, back
+);
+
+blocks
+(
+    // Single wedge block: vertices (0 1 2 0 3 4 5 3)
+    // Collapsed at axis (v0==v2 after wedge, v3==v5)
+    hex (0 1 2 0 3 4 5 3)
+    (100 1 40)          // nCells: 100 axial, 1 azimuthal, 40 radial
+    simpleGrading
+    (
+        1               // axial: uniform
+        1               // azimuthal: 1 cell (wedge)
+        (               // radial: graded, finer near axis
+            (0.3 0.6 4)     // 30% of length, 60% of cells, expansion 4x
+            (0.7 0.4 0.25)  // 70% of length, 40% of cells, compression
+        )
+    )
+);
+
+edges
+(
+    // Arc edges at inlet (from axis outward)
+    arc 1 2 (0 $R 0)    // inlet outer arc
+    // Arc edges at outlet
+    arc 4 5 ($L $R 0)   // outlet outer arc
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (0 1 2 0)   // collapsed face at x=0
+        );
+    }
+
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (3 5 4 3)   // collapsed face at x=L
+        );
+    }
+
+    outerWall
+    {
+        type patch;
+        faces
+        (
+            (1 4 5 2)   // outer cylindrical surface
+        );
+    }
+
+    wedgeFront
+    {
+        type wedge;
+        faces
+        (
+            (0 3 4 1)
+        );
+    }
+
+    wedgeBack
+    {
+        type wedge;
+        faces
+        (
+            (0 2 5 3)
+        );
+    }
+
+    axis
+    {
+        type empty;
+        faces
+        (
+            (0 0 3 3)   // degenerate axis line
+        );
+    }
+);
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

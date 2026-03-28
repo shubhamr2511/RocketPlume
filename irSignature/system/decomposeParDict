@@ -1,0 +1,26 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Version: v2112
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      decomposeParDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+numberOfSubdomains  4;
+
+method              scotch;   // graph-based partitioning, no geometry needed
+
+// Decompose along axial (x) direction for plume case
+// scotchCoeffs { strategy "b"; }
+
+// Alternative: simple Cartesian decomposition
+// method    simple;
+// simpleCoeffs { n (4 1 1); delta 0.001; }
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

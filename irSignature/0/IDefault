@@ -1,0 +1,67 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Version: v2112
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      IDefault;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Default intensity field used as template for ILambda_band{b}_ray{d} fields
+// Units: W / (m^2 sr)
+// The fvDOM model creates ILambda fields from this template
+
+dimensions      [1 0 -3 0 0 0 0];   // W/(m^2·sr)
+
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet
+    {
+        // Intensity entering the domain at nozzle exit:
+        // greyDiffusiveRadiation computes this from local T field
+        type            greyDiffusiveRadiation;
+        emissivity      uniform 1.0;    // gas is treated as blackbody emitter at inlet
+        value           uniform 0;
+    }
+
+    outlet
+    {
+        // Outgoing radiation — zero gradient (radiation leaves freely)
+        type            greyDiffusiveRadiation;
+        emissivity      uniform 1.0;
+        value           uniform 0;
+    }
+
+    outerWall
+    {
+        // Cold outer boundary: ambient blackbody at 288 K
+        // Ibb(288 K) is ~2.5e-4 W/(m^2·sr) integrated over full spectrum
+        // Per band it is much smaller — approximated as 0 for MWIR/LWIR
+        type            greyDiffusiveRadiation;
+        emissivity      uniform 1.0;
+        value           uniform 0;
+    }
+
+    wedgeFront
+    {
+        type            wedge;
+    }
+
+    wedgeBack
+    {
+        type            wedge;
+    }
+
+    axis
+    {
+        type            empty;
+    }
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

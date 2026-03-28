@@ -1,0 +1,30 @@
+# HITEMP raw data — too large for git
+irSignature/hitemp_data/*.par
+irSignature/hitemp_data/*.bz2
+
+# OpenFOAM runtime output
+irSignature/processor*/
+irSignature/[1-9]*/
+irSignature/[0-9][0-9]*/
+atmosphereCase/processor*/
+
+# Compiled binaries
+src/myRadiation/Make/linux*/
+src/myRadiationSolver/Make/linux*/
+*.so
+*.dep
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.claude
+
+# ParaView / visualization
+*.foam
+*.vtk
+*.vtu
+
+# OS
+.DS_Store

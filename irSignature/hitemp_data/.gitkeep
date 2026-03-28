@@ -1,0 +1,8 @@
+# Place HITEMP .par files here:
+#   H2O.par   — from https://hitran.org/hitemp/ (H2O, HITEMP2010)
+#   CO2.par   — from https://hitran.org/hitemp/ (CO2, HITEMP2010)
+#   CO.par    — from https://hitran.org/hitemp/ (CO, HITEMP2019)
+#
+# These files are excluded from git (.gitignore) due to their large size.
+# After downloading, run:
+#   python scripts/process_hitemp.py --species H2O CO2 CO

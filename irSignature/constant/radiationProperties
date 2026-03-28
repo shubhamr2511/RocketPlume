@@ -1,0 +1,57 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Version: v2112
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      radiationProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+radiation           on;
+
+radiationModel      fvDOM;
+
+fvDOMCoeffs
+{
+    nPhi            4;          // azimuthal discrete ordinates (S4 quadrature)
+    nTheta          4;          // polar discrete ordinates
+    // Total rays = 4 * nPhi * nTheta = 64
+    // Increase to (6,6) for higher angular resolution at 3x cost
+
+    maxIter         20;
+    tolerance       1e-4;
+    useSolarLoad    false;
+}
+
+// ----- Non-gray band definitions -----
+// Wavenumbers in cm^-1; wavelength = 10000/wavenumber [µm]
+nBands          3;
+
+bandLimits
+(
+    (2000 3333)     // Band 0: MWIR  3–5 µm   — CO2 4.3µm, CO 4.7µm bands
+    (1000 2000)     // Band 1: MIR   5–10 µm  — H2O/CO2 fundamental stretch
+    (714  1250)     // Band 2: LWIR  8–14 µm  — H2O rotation, atmospheric window
+);
+
+// Band-specific absorption coefficient field names (written by scripts/map_plume_data.py)
+// kappaBand0, kappaBand1, kappaBand2 — volScalarField in 0/
+
+// ----- Absorption/emission model -----
+// Custom: using precomputed kappaBand{i} fields from HITEMP lookup
+// Set to 'none' here; the modified fvDOM reads kappaBand fields directly
+absorptionEmissionModel none;
+
+// ----- Scattering -----
+// Negligible in gas-phase plumes (no soot in this baseline case)
+scatterModel        none;
+
+// ----- Soot -----
+sootModel           none;
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -1,0 +1,58 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Version: v2112
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    object      XH2O;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// H2O mole fraction [-]
+// Overwritten by scripts/map_plume_data.py
+
+dimensions      [0 0 0 0 0 0 0];   // dimensionless
+
+internalField   uniform 0;
+
+boundaryField
+{
+    inlet
+    {
+        // Typical H2O mole fraction at nozzle exit for kerosene combustion
+        type            fixedValue;
+        value           uniform 0.12;
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    outerWall
+    {
+        // Ambient atmospheric H2O (~1.5% at sea level)
+        type            fixedValue;
+        value           uniform 0.015;
+    }
+
+    wedgeFront
+    {
+        type            wedge;
+    }
+
+    wedgeBack
+    {
+        type            wedge;
+    }
+
+    axis
+    {
+        type            empty;
+    }
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

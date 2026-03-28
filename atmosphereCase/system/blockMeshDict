@@ -1,0 +1,100 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Version: v2112
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Atmosphere domain: from plume exit (x=0.4m) to ground sensor
+// Coarser mesh — atmospheric properties vary slowly
+// Modeled as expanding cylinder (atmosphere spreads around the plume axis)
+
+scale   1;
+
+// Atmosphere domain dimensions
+xStart  0.4;        // plume exit position [m]
+xEnd    5000.0;     // sensor distance [m] (5 km slant range example)
+R_atm   100.0;      // atmosphere cylinder radius [m] (wide enough for diverging beam)
+
+halfAngle   2.5;
+radHalf     #calc "degToRad($halfAngle)";
+yPos        #calc "$R_atm * Foam::cos($radHalf)";
+zPos        #calc "$R_atm * Foam::sin($radHalf)";
+
+vertices
+(
+    ($xStart  0       0      )   // 0
+    ($xStart  $yPos  -$zPos  )   // 1
+    ($xStart  $yPos   $zPos  )   // 2
+    ($xEnd    0       0      )   // 3
+    ($xEnd    $yPos  -$zPos  )   // 4
+    ($xEnd    $yPos   $zPos  )   // 5
+);
+
+blocks
+(
+    hex (0 1 2 0 3 4 5 3)
+    (80 1 20)               // 80 axial (log-spaced), 1 azimuthal, 20 radial
+    simpleGrading
+    (
+        100                 // axial: strong expansion toward sensor (100:1)
+        1
+        1
+    )
+);
+
+edges
+(
+    arc 1 2 ($xStart $R_atm 0)
+    arc 4 5 ($xEnd   $R_atm 0)
+);
+
+boundary
+(
+    plumeInterface
+    {
+        // This patch will be stitched to irSignature/outlet after mergeMeshes
+        type patch;
+        faces ( (0 1 2 0) );
+    }
+
+    sensor
+    {
+        // Ground sensor patch — extract IR intensity here
+        type patch;
+        faces ( (3 5 4 3) );
+    }
+
+    atmOuter
+    {
+        type patch;
+        faces ( (1 4 5 2) );
+    }
+
+    wedgeFront
+    {
+        type wedge;
+        faces ( (0 3 4 1) );
+    }
+
+    wedgeBack
+    {
+        type wedge;
+        faces ( (0 2 5 3) );
+    }
+
+    axis
+    {
+        type empty;
+        faces ( (0 0 3 3) );
+    }
+);
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
